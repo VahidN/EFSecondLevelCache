@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache", "EFSecondLevelCache\EFSecondLevelCache.csproj", "{C348A09F-EED0-4E99-A3B9-5A698C6883D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.FunctionalTests", "EFSecondLevelCache.Tests\EFSecondLevelCache.FunctionalTests\EFSecondLevelCache.FunctionalTests.csproj", "{59E13D5F-0634-4088-8863-D30978DA4ECC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C8E062FD-C027-40A6-908F-59158D3EEF67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.TestDataLayer", "EFSecondLevelCache.Tests\EFSecondLevelCache.TestDataLayer\EFSecondLevelCache.TestDataLayer.csproj", "{A206C065-3CA1-4C61-9191-E57CCD589B89}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{415C39FD-6FCB-45EA-84C6-B59EE50B168A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\_run.bat = .nuget\_run.bat
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F554E64-6AD7-4C97-AB7C-6F8E9204BA52}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.PerformanceTests", "EFSecondLevelCache.Tests\EFSecondLevelCache.PerformanceTests\EFSecondLevelCache.PerformanceTests.csproj", "{FA334191-408D-4B9B-AAAC-EB1F3189366B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C348A09F-EED0-4E99-A3B9-5A698C6883D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C348A09F-EED0-4E99-A3B9-5A698C6883D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C348A09F-EED0-4E99-A3B9-5A698C6883D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C348A09F-EED0-4E99-A3B9-5A698C6883D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59E13D5F-0634-4088-8863-D30978DA4ECC}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{59E13D5F-0634-4088-8863-D30978DA4ECC}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{59E13D5F-0634-4088-8863-D30978DA4ECC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59E13D5F-0634-4088-8863-D30978DA4ECC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A206C065-3CA1-4C61-9191-E57CCD589B89}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{A206C065-3CA1-4C61-9191-E57CCD589B89}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{A206C065-3CA1-4C61-9191-E57CCD589B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A206C065-3CA1-4C61-9191-E57CCD589B89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{59E13D5F-0634-4088-8863-D30978DA4ECC} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
+		{A206C065-3CA1-4C61-9191-E57CCD589B89} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
+		{FA334191-408D-4B9B-AAAC-EB1F3189366B} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
+	EndGlobalSection
+EndGlobal
