@@ -1,5 +1,3 @@
-using System;
-using System.Data.Entity;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -14,11 +12,13 @@ namespace EFSecondLevelCache
     {
         private static readonly IEFCacheKeyProvider _defaultCacheKeyProvider;
         private static readonly IEFCacheServiceProvider _defaultCacheServiceProvider;
+        private static readonly IEFCacheKeyProvider _defaultLinqToObjectsCacheKeyProvider;
 
         static EFCachedQueryExtension()
         {
             _defaultCacheServiceProvider = new EFCacheServiceProvider();
             _defaultCacheKeyProvider = new EFCacheKeyProvider(new EFCacheKeyHashProvider());
+            _defaultLinqToObjectsCacheKeyProvider = new LinqToObjectsCacheKeyProvider(new EFCacheKeyHashProvider());
         }
 
         /// <summary>
@@ -35,8 +35,14 @@ namespace EFSecondLevelCache
             this IQueryable<TType> query, EFCachePolicy efCachePolicy, EFCacheDebugInfo debugInfo,
             IEFCacheKeyProvider cacheKeyProvider, IEFCacheServiceProvider cacheServiceProvider)
         {
-            query = query.toAsNoTrackingQuery();
-            return new EFCachedQueryable<TType>(query, efCachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
+            var noTrackingQuery = query.toAsNoTrackingQuery();
+            if (isLinqToObjectsQuery(noTrackingQuery))
+            {
+                return new EFCachedQueryable<TType>(
+                    query, efCachePolicy, debugInfo, _defaultLinqToObjectsCacheKeyProvider, cacheServiceProvider);
+            }
+            return new EFCachedQueryable<TType>(
+                noTrackingQuery, efCachePolicy, debugInfo, cacheKeyProvider, cacheServiceProvider);
         }
 
         ///  <summary>
@@ -89,6 +95,11 @@ namespace EFSecondLevelCache
             return Cacheable(query, efCachePolicy, new EFCacheDebugInfo());
         }
 
+        private static bool isLinqToObjectsQuery<TType>(IQueryable<TType> noTrackingQuery)
+        {
+            return noTrackingQuery == null;
+        }
+
         /// <summary>
         /// Returns a new query where the entities returned will not be cached in the DbContext.
         /// </summary>
@@ -102,13 +113,7 @@ namespace EFSecondLevelCache
             }
 
             var dbQuery = query as DbQuery<TType>;
-            if (dbQuery == null)
-            {
-                throw new NotSupportedException(
-                    "Failed to get DbQuery. Please use EFSecondLevelCache library with EntityFramework queries.");
-            }
-
-            return dbQuery.AsNoTracking();
+            return dbQuery == null ? null : dbQuery.AsNoTracking();
         }
     }
 }

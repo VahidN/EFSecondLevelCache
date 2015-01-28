@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.PerformanceTests", "EFSecondLevelCache.Tests\EFSecondLevelCache.PerformanceTests\EFSecondLevelCache.PerformanceTests.csproj", "{FA334191-408D-4B9B-AAAC-EB1F3189366B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSecondLevelCache.MockingTests", "EFSecondLevelCache.Tests\EFSecondLevelCache.MockingTests\EFSecondLevelCache.MockingTests.csproj", "{70BC2DB8-D5E6-4B46-9368-2F57B127B24F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA334191-408D-4B9B-AAAC-EB1F3189366B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70BC2DB8-D5E6-4B46-9368-2F57B127B24F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70BC2DB8-D5E6-4B46-9368-2F57B127B24F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70BC2DB8-D5E6-4B46-9368-2F57B127B24F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70BC2DB8-D5E6-4B46-9368-2F57B127B24F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,5 +63,6 @@ Global
 		{59E13D5F-0634-4088-8863-D30978DA4ECC} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
 		{A206C065-3CA1-4C61-9191-E57CCD589B89} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
 		{FA334191-408D-4B9B-AAAC-EB1F3189366B} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
+		{70BC2DB8-D5E6-4B46-9368-2F57B127B24F} = {C8E062FD-C027-40A6-908F-59158D3EEF67}
 	EndGlobalSection
 EndGlobal

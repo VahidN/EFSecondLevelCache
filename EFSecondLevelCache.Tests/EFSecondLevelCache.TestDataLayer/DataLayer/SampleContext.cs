@@ -7,9 +7,10 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
 {
     public class SampleContext : DbContext
     {
-        public DbSet<Product> Products { get; set; }
-        public DbSet<Tag> Tags { get; set; }
-        public DbSet<User> Users { get; set; }
+        // This is virtual because Moq needs to override the behavior.
+        public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         public SampleContext()
             : base("connectionString1")

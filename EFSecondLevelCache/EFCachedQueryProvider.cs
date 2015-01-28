@@ -18,7 +18,6 @@ namespace EFSecondLevelCache
 #if !NET40
 , IDbAsyncQueryProvider
 #endif
-
     {
         private readonly IQueryable<TType> _query;
         private readonly EFCachePolicy _efCachePolicy;
@@ -132,23 +131,23 @@ namespace EFSecondLevelCache
         #region IDbAsyncQueryProvider implementation
 #if !NET40
         /// <summary>
-        /// 
+        /// Asynchronously executes the strongly-typed query represented by a specified expression tree.
         /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="expression"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <typeparam name="TResult">The type of the value that results from executing the query.</typeparam>
+        /// <param name="expression">An expression tree that represents a LINQ query.</param>
+        /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             return Task.FromResult(Execute<TResult>(expression));
         }
 
         /// <summary>
-        /// 
+        /// Asynchronously executes the query represented by a specified expression tree.
         /// </summary>
-        /// <param name="expression"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <param name="expression">An expression tree that represents a LINQ query.</param>
+        /// <param name="cancellationToken">A CancellationToken to observe while waiting for the task to complete.</param>
+        /// <returns>A task that represents the asynchronous operation.  The task result contains the value that results from executing the specified query.</returns>
         public Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
         {
             return Task.FromResult(Execute(expression));

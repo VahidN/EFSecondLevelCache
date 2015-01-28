@@ -107,6 +107,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FastReflectionUtils.cs" />
+    <Compile Include="LinqToObjectsCacheKeyProvider.cs" />
     <Compile Include="ObjectQueryExtensions.cs" />
     <Compile Include="EFAsyncEnumerator.cs" />
     <Compile Include="XxHashUnsafe.cs" />
