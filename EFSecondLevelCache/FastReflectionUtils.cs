@@ -11,7 +11,9 @@ namespace EFSecondLevelCache
     /// </summary>
     public static class FastReflectionUtils
     {
-        private static readonly ConcurrentDictionary<string, Dictionary<Type, Func<object, object>>> _gettersCache = new ConcurrentDictionary<string, Dictionary<Type, Func<object, object>>>();
+        private static readonly
+            ConcurrentDictionary<string, ConcurrentDictionary<Type, Func<object, object>>> _gettersCache
+                = new ConcurrentDictionary<string, ConcurrentDictionary<Type, Func<object, object>>>();
 
         /// <summary>
         /// Gets a compiled property getter delegate for the underlying type.
@@ -47,7 +49,7 @@ namespace EFSecondLevelCache
         public static Func<object, object> GetPropertyGetterDelegateFromCache(
             this Type type, string propertyName, BindingFlags bindingFlags)
         {
-            Dictionary<Type, Func<object, object>> getterDictionary;
+            ConcurrentDictionary<Type, Func<object, object>> getterDictionary;
             Func<object, object> getter;
             if (_gettersCache.TryGetValue(propertyName, out getterDictionary))
             {
@@ -65,11 +67,16 @@ namespace EFSecondLevelCache
 
             if (getterDictionary != null)
             {
-                getterDictionary.Add(type, getter);
+                getterDictionary.TryAdd(type, getter);
             }
             else
             {
-                _gettersCache.TryAdd(propertyName, new Dictionary<Type, Func<object, object>> { { type, getter } });
+                _gettersCache.TryAdd(propertyName,
+                    new ConcurrentDictionary<Type, Func<object, object>>(
+                        new Dictionary<Type, Func<object, object>>
+                        {
+                            { type, getter }
+                        }));
             }
 
             return getter;
