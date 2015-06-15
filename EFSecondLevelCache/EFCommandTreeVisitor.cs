@@ -52,7 +52,8 @@ namespace EFSecondLevelCache
         /// <returns>True if it's an EF internal table</returns>
         private static bool isEntityFrameworkInternalTable(EntitySetBase setBase)
         {
-            return setBase.Table.StartsWith("__") || setBase.Table.StartsWith("Edm");
+            return setBase.Table != null &&
+                (setBase.Table.StartsWith("__") || setBase.Table.StartsWith("Edm"));
         }
 
         private Type getEntityType(EntitySetBase setBase)
