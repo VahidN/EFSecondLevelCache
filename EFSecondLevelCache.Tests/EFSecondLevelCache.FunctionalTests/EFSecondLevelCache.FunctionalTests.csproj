@@ -38,10 +38,18 @@
       <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FluentValidationNA, Version=1.2.16.24816, Culture=neutral, PublicKeyToken=0950390b87309e14, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\FluentValidationNA.1.2.16\lib\net40\FluentValidationNA.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Linq.Dynamic, Version=1.1.14.15853, Culture=neutral, PublicKeyToken=b72be0322d1b32a8, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Linq.Dynamic.Library.1.1.14\lib\net40\System.Linq.Dynamic.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
   </ItemGroup>
@@ -63,6 +71,7 @@
     <Compile Include="EFCachedQueryProviderTests.cs" />
     <Compile Include="EFCacheServiceProviderTests.cs" />
     <Compile Include="PerformanceTests.cs" />
+    <Compile Include="DynamicLINQTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
