@@ -54,7 +54,7 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
                 .Where(x => x.State == EntityState.Added ||
                             x.State == EntityState.Modified ||
                             x.State == EntityState.Deleted)
-                .Select(x => ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
+                .Select(x => System.Data.Entity.Core.Objects.ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
                 .Distinct()
                 .ToArray();
         }

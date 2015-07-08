@@ -2,8 +2,8 @@
 =======
 Entity Framework 6.x Second Level Caching Library.
 
-Second level caching is a query cache. The results of EF commands will be stored in the cache, 
-so that the same EF commands will retrieve their data from the cache rather than executing them 
+Second level caching is a query cache. The results of EF commands will be stored in the cache,
+so that the same EF commands will retrieve their data from the cache rather than executing them
 against the database again.
 
 
@@ -43,7 +43,7 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
                 .Where(x => x.State == EntityState.Added ||
                             x.State == EntityState.Modified ||
                             x.State == EntityState.Deleted)
-                .Select(x => ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
+                .Select(x => System.Data.Entity.Core.Objects.ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
                 .Distinct()
                 .ToArray();
         }
@@ -61,8 +61,8 @@ var products = context.Products.Include(x => x.Tags).Cacheable().FirstOrDefault(
 
 
 Notes:
-Good candidates for query caching are global site's settings, list of public articles or comments 
-and not frequently changed, private or specific data to each user. 
+Good candidates for query caching are global site's settings, list of public articles or comments
+and not frequently changed, private or specific data to each user.
 If a page requires authentication, its data shouldn't be cached.
 
 Project's Url:
