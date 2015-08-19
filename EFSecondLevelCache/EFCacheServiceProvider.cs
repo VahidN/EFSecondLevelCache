@@ -13,6 +13,7 @@ namespace EFSecondLevelCache
     public class EFCacheServiceProvider : IEFCacheServiceProvider
     {
         private static readonly SortedSet<string> _rootKeys = new SortedSet<string>();
+        private static readonly EFCacheKey _nullObject = new EFCacheKey();
 
         /// <summary>
         /// Returns list of the cached keys.
@@ -74,7 +75,8 @@ namespace EFSecondLevelCache
         /// <returns>cached value</returns>
         public object GetValue(string cacheKey)
         {
-            return HttpRuntime.Cache.Get(cacheKey);
+            var value = HttpRuntime.Cache.Get(cacheKey);
+            return value == _nullObject ? null : value;
         }
 
         /// <summary>
@@ -90,6 +92,11 @@ namespace EFSecondLevelCache
                                 DateTime absoluteExpiration,
                                 CacheItemPriority priority = CacheItemPriority.Normal)
         {
+            if (value == null)
+            {
+                value = _nullObject; // `HttpRuntime.Cache.Insert` won't accept null values.
+            }
+
             HttpRuntime.Cache.Insert(
                     key: cacheKey,
                     value: value,

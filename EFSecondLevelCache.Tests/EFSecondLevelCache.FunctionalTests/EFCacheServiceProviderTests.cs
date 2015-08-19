@@ -107,5 +107,15 @@ namespace EFSecondLevelCache.FunctionalTests
             Assert.IsNull(key1);
             Assert.AreEqual(0, keys.Count);
         }
+
+        [TestMethod]
+        public void TestInsertingNullValues()
+        {
+            _cacheService.StoreRootCacheKeys(new[] { "entity1", "entity2" });
+            _cacheService.InsertValue("EF_key1", null, new[] { "entity1", "entity2" }, DateTime.Now.AddMinutes(10));
+
+            var value1 = _cacheService.GetValue("EF_key1");
+            Assert.IsNull(value1);
+        }
     }
 }
