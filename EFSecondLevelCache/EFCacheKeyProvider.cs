@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Objects;
@@ -14,8 +13,9 @@ namespace EFSecondLevelCache
     /// </summary>
     public class EFCacheKeyProvider : IEFCacheKeyProvider
     {
+        private static readonly object _lock = new object();
         private readonly IEFCacheKeyHashProvider _cacheKeyHashProvider;
-        private static readonly ConcurrentDictionary<string, string[]> _entityTypesCache = new ConcurrentDictionary<string, string[]>();
+        private static readonly Dictionary<string, string[]> _entityTypesCache = new Dictionary<string, string[]>();
 
         /// <summary>
         /// A custom cache key provider for EF queries.
@@ -41,36 +41,39 @@ namespace EFSecondLevelCache
                                             string keyHashPrefix = EFCacheKey.KeyHashPrefix,
                                             string saltKey = "")
         {
-            var objectQuery = query.GetObjectQuery(expression);
-            objectQuery.MergeOption = MergeOption.NoTracking; // equals to call AsNoTracking() method
-
-            string traceString;
-            DbQueryCommandTree dbQueryCommandTree;
-            using (var commandTreeCollector = new EFCommandTreeCollector(objectQuery.Context))
+            lock (_lock)
             {
-                traceString = objectQuery.ToTraceString();
-                dbQueryCommandTree = commandTreeCollector.DbQueryCommandTree;
+                var objectQuery = query.GetObjectQuery(expression);
+                objectQuery.MergeOption = MergeOption.NoTracking; // equals to call AsNoTracking() method
+
+                string traceString;
+                DbQueryCommandTree dbQueryCommandTree;
+                using (var commandTreeCollector = new EFCommandTreeCollector(objectQuery.Context))
+                {
+                    traceString = objectQuery.ToTraceString();
+                    dbQueryCommandTree = commandTreeCollector.DbQueryCommandTree;
+                }
+
+                var traceStringHash = _cacheKeyHashProvider.ComputeHash(traceString);
+                var key = string.Format("{0}{3}{1}{3}{2}{3}{4}",
+                    objectQuery.Context.Connection.ConnectionString,
+                    traceString,
+                    string.Join(Environment.NewLine, getParameterValues(objectQuery)),
+                    Environment.NewLine,
+                    saltKey);
+                var keyHash = string.Format("{0}{1}", keyHashPrefix, _cacheKeyHashProvider.ComputeHash(key));
+
+                string[] cacheDependencies;
+                if (_entityTypesCache.TryGetValue(traceStringHash, out cacheDependencies))
+                {
+                    return new EFCacheKey {Key = key, KeyHash = keyHash, CacheDependencies = cacheDependencies};
+                }
+
+                cacheDependencies = getCacheDependencies(objectQuery, dbQueryCommandTree);
+                _entityTypesCache.Add(traceStringHash, cacheDependencies);
+
+                return new EFCacheKey {Key = key, KeyHash = keyHash, CacheDependencies = cacheDependencies};
             }
-
-            var traceStringHash = _cacheKeyHashProvider.ComputeHash(traceString);
-            var key = string.Format("{0}{3}{1}{3}{2}{3}{4}",
-                                    objectQuery.Context.Connection.ConnectionString,
-                                    traceString,
-                                    string.Join(Environment.NewLine, getParameterValues(objectQuery)),
-                                    Environment.NewLine,
-                                    saltKey);
-            var keyHash = string.Format("{0}{1}", keyHashPrefix, _cacheKeyHashProvider.ComputeHash(key));
-
-            string[] cacheDependencies;
-            if (_entityTypesCache.TryGetValue(traceStringHash, out cacheDependencies))
-            {
-                return new EFCacheKey { Key = key, KeyHash = keyHash, CacheDependencies = cacheDependencies };
-            }
-
-            cacheDependencies = getCacheDependencies(objectQuery, dbQueryCommandTree);
-            _entityTypesCache.TryAdd(traceStringHash, cacheDependencies);
-
-            return new EFCacheKey { Key = key, KeyHash = keyHash, CacheDependencies = cacheDependencies };
         }
 
         private static string[] getCacheDependencies(ObjectQuery objectQuery, DbQueryCommandTree queryTree)

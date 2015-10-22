@@ -40,10 +40,10 @@ namespace EFSecondLevelCache.FunctionalTests
                 Trace.WriteLine("1st query using Include method.");
                 databaseLog.Clear();
                 var debugInfo1 = new EFCacheDebugInfo();
-                var firstPoductIncludeTags = context.Products.Include(x => x.Tags)
+                var firstProductIncludeTags = context.Products.Include(x => x.Tags)
                                                              .Cacheable(debugInfo1)
                                                              .FirstOrDefault();
-                Assert.IsNotNull(firstPoductIncludeTags);
+                Assert.IsNotNull(firstProductIncludeTags);
                 Assert.AreEqual(false, debugInfo1.IsCacheHit);
                 var hash1 = debugInfo1.EFCacheKey.KeyHash;
                 var cacheDependencies1 = debugInfo1.EFCacheKey.CacheDependencies;
@@ -53,9 +53,9 @@ namespace EFSecondLevelCache.FunctionalTests
                  This was the problem with just parsing the LINQ expression, without considering the produced SQL.");
                 databaseLog.Clear();
                 var debugInfo2 = new EFCacheDebugInfo();
-                var firstPoduct = context.Products.Cacheable(debugInfo2)
+                var firstProduct = context.Products.Cacheable(debugInfo2)
                                                   .FirstOrDefault();
-                Assert.IsNotNull(firstPoduct);
+                Assert.IsNotNull(firstProduct);
                 Assert.AreEqual(false, debugInfo2.IsCacheHit);
                 var hash2 = debugInfo2.EFCacheKey.KeyHash;
                 var cacheDependencies2 = debugInfo2.EFCacheKey.CacheDependencies;
@@ -1161,12 +1161,12 @@ namespace EFSecondLevelCache.FunctionalTests
                 Trace.WriteLine("1st query using Include method.");
                 databaseLog.Clear();
                 var debugInfo1 = new EFCacheDebugInfo();
-                var firstPoductIncludeTags = context.Users
+                var firstProductIncludeTags = context.Users
                                                     .Include(x => x.Products)
                                                     .Include(x => x.Products.Select(y => y.Tags))
                                                     .Cacheable(debugInfo1)
                                                     .FirstOrDefault();
-                Assert.IsNotNull(firstPoductIncludeTags);
+                Assert.IsNotNull(firstProductIncludeTags);
                 Assert.AreEqual(false, debugInfo1.IsCacheHit);
                 var hash1 = debugInfo1.EFCacheKey.KeyHash;
                 var cacheDependencies1 = debugInfo1.EFCacheKey.CacheDependencies;
@@ -1175,12 +1175,12 @@ namespace EFSecondLevelCache.FunctionalTests
                 Trace.WriteLine("same cached query using Include method.");
                 databaseLog.Clear();
                 var debugInfo11 = new EFCacheDebugInfo();
-                var firstPoductIncludeTags11 = context.Users
+                var firstProductIncludeTags11 = context.Users
                                                     .Include(x => x.Products)
                                                     .Include(x => x.Products.Select(y => y.Tags))
                                                     .Cacheable(debugInfo11)
                                                     .FirstOrDefault();
-                Assert.IsNotNull(firstPoductIncludeTags11);
+                Assert.IsNotNull(firstProductIncludeTags11);
                 Assert.AreEqual(true, debugInfo11.IsCacheHit);
 
 
@@ -1189,9 +1189,9 @@ namespace EFSecondLevelCache.FunctionalTests
                  This was the problem with just parsing the LINQ expression, without considering the produced SQL.");
                 databaseLog.Clear();
                 var debugInfo2 = new EFCacheDebugInfo();
-                var firstPoduct = context.Users.Cacheable(debugInfo2)
+                var firstProduct = context.Users.Cacheable(debugInfo2)
                                                .FirstOrDefault();
-                Assert.IsNotNull(firstPoduct);
+                Assert.IsNotNull(firstProduct);
                 Assert.AreEqual(false, debugInfo2.IsCacheHit);
                 var hash2 = debugInfo2.EFCacheKey.KeyHash;
                 var cacheDependencies2 = debugInfo2.EFCacheKey.CacheDependencies;
@@ -1199,6 +1199,131 @@ namespace EFSecondLevelCache.FunctionalTests
                 Assert.AreNotEqual(hash1, hash2);
                 Assert.AreNotEqual(cacheDependencies1, cacheDependencies2);
             }
+        }
+
+        [TestMethod]
+        public void TestIncludeMethodAndProjectionAffectsKeyCache()
+        {
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("a normal query");
+                var product1IncludeTags = context.Products
+                    .Include(x => x.Tags)
+                    .Select(x => new { Name = x.ProductName, x.Tags }).OrderBy(x => x.Name)
+                    .FirstOrDefault();
+                Assert.IsNotNull(product1IncludeTags);
+            }
+
+            string hash1;
+            string[] cacheDependencies1;
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("1st Cacheable query using Include method, reading from db");
+                databaseLog.Clear();
+                var debugInfo1 = new EFCacheDebugInfo();
+                var firstProductIncludeTags = context.Products
+                    .Include(x => x.Tags)
+                    .Select(x => new { Name = x.ProductName, x.Tags }).OrderBy(x => x.Name)
+                    .Cacheable(debugInfo1)
+                    .FirstOrDefault();
+                Assert.IsNotNull(firstProductIncludeTags);
+                Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                hash1 = debugInfo1.EFCacheKey.KeyHash;
+                cacheDependencies1 = debugInfo1.EFCacheKey.CacheDependencies;
+            }
+
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("same Cacheable query, reading from 2nd level cache");
+                databaseLog.Clear();
+                var debugInfo2 = new EFCacheDebugInfo();
+                var firstProductIncludeTags2 = context.Products
+                    .Include(x => x.Tags)
+                    .Select(x => new { Name = x.ProductName, x.Tags }).OrderBy(x => x.Name)
+                    .Cacheable(debugInfo2)
+                    .FirstOrDefault();
+                Assert.IsNotNull(firstProductIncludeTags2);
+                var sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(true, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(true, debugInfo2.IsCacheHit);
+            }
+
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine(
+                    @"3rd query looks the same, but it doesn't have the Include method, so it shouldn't produce the same queryKeyHash.
+                 This was the problem with just parsing the LINQ expression, without considering the produced SQL.");
+                databaseLog.Clear();
+                var debugInfo3 = new EFCacheDebugInfo();
+                var firstProduct = context.Products
+                    .Select(x => new { Name = x.ProductName, x.Tags }).OrderBy(x => x.Name)
+                    .Cacheable(debugInfo3)
+                    .FirstOrDefault();
+                Assert.IsNotNull(firstProduct);
+                Assert.AreEqual(false, debugInfo3.IsCacheHit);
+                var hash3 = debugInfo3.EFCacheKey.KeyHash;
+                var cacheDependencies3 = debugInfo3.EFCacheKey.CacheDependencies;
+
+                Assert.AreNotEqual(hash1, hash3);
+                Assert.AreNotEqual(cacheDependencies1, cacheDependencies3);
+            }
+        }
+
+        protected static void ExecuteInParallel(Action test, int count = 40)
+        {
+            var tests = new Action[count];
+            for (var i = 0; i < count; i++)
+            {
+                tests[i] = test;
+            }
+            Parallel.Invoke(tests);
+        }
+
+        [TestMethod]
+        public void TestParallelQueriesShouldCacheData()
+        {
+            var debugInfo1 = new EFCacheDebugInfo();
+            ExecuteInParallel(() =>
+            {
+                using (var context = new SampleContext())
+                {
+                    var firstProductIncludeTags = context.Products
+                        .Include(x => x.Tags)
+                        .Select(x => new {Name = x.ProductName, x.Tags}).OrderBy(x => x.Name)
+                        .Cacheable(debugInfo1)
+                        .FirstOrDefault();
+                    Assert.IsNotNull(firstProductIncludeTags);
+                }
+            });
+            Assert.AreEqual(true, debugInfo1.IsCacheHit);
         }
     }
 }

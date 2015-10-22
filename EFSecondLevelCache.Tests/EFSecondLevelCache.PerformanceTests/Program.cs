@@ -26,7 +26,7 @@ namespace EFSecondLevelCache.PerformanceTests
         {
             startDb();
             cachedQueries();
-            //uncachedQueries();
+            uncachedQueries();
         }
 
         private static void startDb()
