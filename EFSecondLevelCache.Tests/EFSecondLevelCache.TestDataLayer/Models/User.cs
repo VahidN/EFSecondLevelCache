@@ -11,5 +11,7 @@ namespace EFSecondLevelCache.TestDataLayer.Models
         public string Name { set; get; }
 
         public virtual ICollection<Product> Products { set; get; }
+
+        public virtual ICollection<Post> Posts { set; get; }
     }
 }

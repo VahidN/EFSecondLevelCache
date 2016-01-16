@@ -1317,13 +1317,124 @@ namespace EFSecondLevelCache.FunctionalTests
                 {
                     var firstProductIncludeTags = context.Products
                         .Include(x => x.Tags)
-                        .Select(x => new {Name = x.ProductName, x.Tags}).OrderBy(x => x.Name)
+                        .Select(x => new { Name = x.ProductName, x.Tags }).OrderBy(x => x.Name)
                         .Cacheable(debugInfo1)
                         .FirstOrDefault();
                     Assert.IsNotNull(firstProductIncludeTags);
                 }
             });
             Assert.AreEqual(true, debugInfo1.IsCacheHit);
+        }
+
+        [TestMethod]
+        public void TestRemoveDataShouldInvalidateTheCacheAutomatically()
+        {
+            using (var context = new SampleContext())
+            {
+                var isActive = true;
+                var name = "Product1";
+
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("1st query, reading from db");
+                var debugInfo1 = new EFCacheDebugInfo();
+                var list1 = context.Products.Include(x => x.Tags)
+                    .OrderBy(product => product.ProductNumber)
+                    .Where(product => product.IsActive == isActive && product.ProductName == name)
+                    .Cacheable(debugInfo1)
+                    .ToList();
+                var sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                Assert.IsNotNull(list1);
+
+
+                Trace.WriteLine("same query, reading from 2nd level cache");
+                databaseLog.Clear();
+                var debugInfo2 = new EFCacheDebugInfo();
+                var list2 = context.Products.Include(x => x.Tags)
+                    .OrderBy(product => product.ProductNumber)
+                    .Where(product => product.IsActive == isActive && product.ProductName == name)
+                    .Cacheable(debugInfo2)
+                    .ToList();
+                sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(true, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                Assert.IsTrue(list2.Any());
+
+
+                Trace.WriteLine("removing data, invalidates the cache on SaveChanges");
+                var product1 = context.Products.First(product => product.ProductName == name);
+                context.Products.Remove(product1);
+                context.SaveChanges();
+
+
+                Trace.WriteLine("same query after remove, reading from database.");
+                databaseLog.Clear();
+                var debugInfo3 = new EFCacheDebugInfo();
+                var list3 = context.Products.Include(x => x.Tags)
+                    .OrderBy(product => product.ProductNumber)
+                    .Where(product => product.IsActive == isActive && product.ProductName == name)
+                    .Cacheable(debugInfo3)
+                    .ToList();
+                sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(false, debugInfo3.IsCacheHit);
+                Assert.IsNotNull(list3);
+            }
+        }
+
+        [TestMethod]
+        public void TestRemoveTptDataShouldInvalidateTheCacheAutomatically()
+        {
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("1st query, reading from db");
+                var debugInfo1 = new EFCacheDebugInfo();
+                var list1 = context.Posts.OfType<Page>().Cacheable(debugInfo1).ToList();
+                var sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                Assert.AreEqual(2, list1.Count);
+
+
+                Trace.WriteLine("same query, reading from 2nd level cache");
+                databaseLog.Clear();
+                var debugInfo2 = new EFCacheDebugInfo();
+                var list2 = context.Posts.OfType<Page>().Cacheable(debugInfo2).ToList();
+                sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(true, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                Assert.AreEqual(2, list2.Count);
+
+
+                Trace.WriteLine("removing data, invalidates the cache on SaveChanges");
+                var post1 = context.Posts.First(post => post.Title == "Post1");
+                context.Posts.Remove(post1);
+                context.SaveChanges();
+
+
+                Trace.WriteLine("same query after remove, reading from database.");
+                databaseLog.Clear();
+                var debugInfo3 = new EFCacheDebugInfo();
+                var list3 = context.Posts.OfType<Page>().Cacheable(debugInfo3).ToList();
+                sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(false, debugInfo3.IsCacheHit);
+                Assert.AreEqual(1, list3.Count);
+            }
         }
     }
 }

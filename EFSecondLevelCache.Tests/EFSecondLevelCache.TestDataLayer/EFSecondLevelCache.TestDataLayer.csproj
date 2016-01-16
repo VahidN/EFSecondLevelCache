@@ -47,6 +47,7 @@
     <Compile Include="DataLayer\SampleContext.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Tag.cs" />
+    <Compile Include="Models\TPT.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
