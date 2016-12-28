@@ -12,42 +12,43 @@ Usage:
 
 namespace EFSecondLevelCache.TestDataLayer.DataLayer
 {
-    public class SampleContext : DbContext
-    {
-        // public DbSet<Product> Products { get; set; }
+	public class SampleContext : DbContext
+	{
+		// public DbSet<Product> Products { get; set; }
 
-        public SampleContext()
-            : base("connectionString1")
-        {
-        }
+		public SampleContext()
+			: base("connectionString1")
+		{
+		}
 
-        public override int SaveChanges()
-        {
-            return SaveAllChanges(invalidateCacheDependencies: true);
-        }
+		public override int SaveChanges()
+		{
+			return SaveAllChanges(invalidateCacheDependencies: true);
+		}
 
-        public int SaveAllChanges(bool invalidateCacheDependencies = true)
-        {
-            var changedEntityNames = getChangedEntityNames();
-            var result = base.SaveChanges();
-            if (invalidateCacheDependencies)
-            {
-                new EFCacheServiceProvider().InvalidateCacheDependencies(changedEntityNames);
-            }
-            return result;
-        }
+		public int SaveAllChanges(bool invalidateCacheDependencies = true)
+		{
+			var changedEntityNames = getChangedEntityNames();
+			var result = base.SaveChanges();
+			if (invalidateCacheDependencies)
+			{
+				new EFCacheServiceProvider().InvalidateCacheDependencies(changedEntityNames);
+			}
+			return result;
+		}
 
-        private string[] getChangedEntityNames()
-        {
-            return this.ChangeTracker.Entries()
-                .Where(x => x.State == EntityState.Added ||
-                            x.State == EntityState.Modified ||
-                            x.State == EntityState.Deleted)
-                .Select(x => System.Data.Entity.Core.Objects.ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
-                .Distinct()
-                .ToArray();
-        }
-    }
+		private string[] getChangedEntityNames()
+		{
+			// Updated version of this method: \EFSecondLevelCache\EFSecondLevelCache.Tests\EFSecondLevelCache.TestDataLayer\DataLayer\SampleContext.cs
+			return this.ChangeTracker.Entries()
+				.Where(x => x.State == EntityState.Added ||
+							x.State == EntityState.Modified ||
+							x.State == EntityState.Deleted)
+				.Select(x => System.Data.Entity.Core.Objects.ObjectContext.GetObjectType(x.Entity.GetType()).FullName)
+				.Distinct()
+				.ToArray();
+		}
+	}
 }
 
 Sometimes you don't want to invalidate the cache when non important properties such as NumberOfViews are updated.

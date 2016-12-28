@@ -18,7 +18,7 @@ You can also view the [package page](http://www.nuget.org/packages/EFSecondLevel
 
 Usage:
 -----------------
-1- Setting up the cache invalidation by overriding the SaveChanges method to prevent stale reads:
+1- [Setting up the cache invalidation](/EFSecondLevelCache.Tests/EFSecondLevelCache.TestDataLayer/DataLayer/SampleContext.cs) by overriding the SaveChanges method to prevent stale reads:
 
 ```csharp
 namespace EFSecondLevelCache.TestDataLayer.DataLayer
@@ -50,6 +50,7 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
 
         private string[] getChangedEntityNames()
         {
+            // Updated version of this method: \EFSecondLevelCache\EFSecondLevelCache.Tests\EFSecondLevelCache.TestDataLayer\DataLayer\SampleContext.cs
             return this.ChangeTracker.Entries()
                 .Where(x => x.State == EntityState.Added ||
                             x.State == EntityState.Modified ||
