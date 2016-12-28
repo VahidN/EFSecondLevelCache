@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Linq;
 using EFSecondLevelCache.TestDataLayer.Models;
 
@@ -11,6 +10,11 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
     {
         public static string[] GetChangedEntityNames(this DbContext dbContext)
         {
+            if (!dbContext.Configuration.AutoDetectChangesEnabled)
+            {
+                dbContext.ChangeTracker.DetectChanges();
+            }
+
             var typesList = new List<Type>();
             foreach (var type in dbContext.getChangedEntityTypes())
             {
@@ -22,8 +26,6 @@ namespace EFSecondLevelCache.TestDataLayer.DataLayer
                 .Select(type => System.Data.Entity.Core.Objects.ObjectContext.GetObjectType(type).FullName)
                 .Distinct()
                 .ToArray();
-
-            Trace.WriteLine(string.Format("Changed Entity Names: {0}", changedEntityNames.Aggregate((e1, e2) => string.Format("{0}, {1}", e1, e2))));
 
             return changedEntityNames;
         }
