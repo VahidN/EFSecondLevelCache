@@ -1436,5 +1436,45 @@ namespace EFSecondLevelCache.FunctionalTests
                 Assert.AreEqual(1, list3.Count);
             }
         }
+
+
+        [TestMethod]
+        public void TestNullValuesWillUseTheCache()
+        {
+            using (var context = new SampleContext())
+            {
+                var databaseLog = new StringBuilder();
+                context.Database.Log = commandLine =>
+                {
+                    databaseLog.AppendLine(commandLine);
+                    Trace.Write(commandLine);
+                };
+
+                Trace.WriteLine("1st query, reading from db.");
+                var debugInfo1 = new EFCacheDebugInfo();
+                var item1 = context.Products.Include(x => x.Tags)
+                    .OrderBy(product => product.ProductNumber)
+                    .Where(product => product.IsActive && product.ProductName == "Product1xx")
+                    .Cacheable(debugInfo1)
+                    .FirstOrDefault();
+                var sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(false, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(false, debugInfo1.IsCacheHit);
+                Assert.IsNull(item1);
+
+                Trace.WriteLine("2nd query, reading from cache.");
+                databaseLog.Clear();
+                var debugInfo2 = new EFCacheDebugInfo();
+                var item2 = context.Products.Include(x => x.Tags)
+                    .OrderBy(product => product.ProductNumber)
+                    .Where(product => product.IsActive && product.ProductName == "Product1xx")
+                    .Cacheable(debugInfo2)
+                    .FirstOrDefault();
+                sqlCommands = databaseLog.ToString().Trim();
+                Assert.AreEqual(true, string.IsNullOrWhiteSpace(sqlCommands));
+                Assert.AreEqual(true, debugInfo2.IsCacheHit);
+                Assert.IsNull(item2);
+            }
+        }
     }
 }

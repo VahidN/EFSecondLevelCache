@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using EFSecondLevelCache.TestDataLayer.DataLayer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,6 +21,7 @@ namespace EFSecondLevelCache.FunctionalTests
 
         private static void startDb()
         {
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
             Database.SetInitializer(new MigrateDatabaseToLatestVersion<SampleContext, Configuration>());
             using (var ctx = new SampleContext())
             {
