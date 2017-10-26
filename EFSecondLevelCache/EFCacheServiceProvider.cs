@@ -12,12 +12,14 @@ namespace EFSecondLevelCache
     /// </summary>
     public class EFCacheServiceProvider : IEFCacheServiceProvider
     {
+        private static readonly EFCacheKey _nullObject = new EFCacheKey();
         private static readonly SortedSet<string> _rootKeys = new SortedSet<string>();
 
         /// <summary>
-        /// NullObject
+        /// `HttpRuntime.Cache.Insert` won't accept null values.
+        /// So we need a custom Null object here. It should be defined `static readonly` in your code.
         /// </summary>
-        public static readonly EFCacheKey NullObject = new EFCacheKey();
+        public object NullObject => _nullObject;
 
         /// <summary>
         /// Returns list of the cached keys.

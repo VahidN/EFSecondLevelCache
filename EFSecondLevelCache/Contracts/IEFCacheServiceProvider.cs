@@ -58,5 +58,11 @@ namespace EFSecondLevelCache.Contracts
         /// </summary>
         /// <param name="rootCacheKeys">cache dependencies</param>
         void StoreRootCacheKeys(string[] rootCacheKeys);
+
+        /// <summary>
+        /// `HttpRuntime.Cache.Insert` won't accept null values.
+        /// So we need a custom Null object here. It should be defined `static readonly` in your code.
+        /// </summary>
+        object NullObject { get; }
     }
 }

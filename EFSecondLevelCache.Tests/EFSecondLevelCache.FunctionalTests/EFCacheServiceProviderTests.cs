@@ -115,7 +115,7 @@ namespace EFSecondLevelCache.FunctionalTests
             _cacheService.InsertValue("EF_key1", null, new[] { "entity1", "entity2" }, DateTime.Now.AddMinutes(10));
 
             var value1 = _cacheService.GetValue("EF_key1");
-            Assert.IsTrue(Equals(value1, EFCacheServiceProvider.NullObject));
+            Assert.IsTrue(Equals(value1, _cacheService.NullObject));
         }
     }
 }
