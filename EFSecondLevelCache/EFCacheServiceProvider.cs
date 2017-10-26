@@ -65,7 +65,7 @@ namespace EFSecondLevelCache
 
             while (enumerator.MoveNext())
             {
-                if (!enumerator.Key.ToString().StartsWith(keyHashPrefix))
+                if (!enumerator.Key.ToString().StartsWith(keyHashPrefix, StringComparison.Ordinal))
                     continue;
 
                 results.Add(enumerator.Key.ToString());
